@@ -664,7 +664,7 @@ request OpenDataTable {..} s = do
                  dataDescriptorEnumerable     = False,
                  dataDescriptorConfigurable   = True })
            , ("url", PropertyData $ DataDescriptor {
-                 dataDescriptorValue          = inj (LBS.toString url),
+                 dataDescriptorValue          = r.r.r.r.inj . LBS.toString $ url,
                  dataDescriptorWritable       = True,
                  dataDescriptorEnumerable     = False,
                  dataDescriptorConfigurable   = True }) ],
@@ -711,7 +711,7 @@ yqlRestAcceptCallImpl restObj f this (List args) = do
            (ValueString s:_) -> s
            _ -> ""
   lift . lift $ Data.rest . Data.Rest.accept ?= fromString a
-  return (inj restObj)
+  return . r.inj $ restObj
 
 yqlRestContentTypeCallImpl :: Object -> InternalCallType YQLM
 yqlRestContentTypeCallImpl restObj f this (List args) = do
@@ -719,7 +719,7 @@ yqlRestContentTypeCallImpl restObj f this (List args) = do
            (ValueString s:_) -> s
            _ -> ""
   lift . lift $ Data.rest . Data.Rest.contentType ?= fromString a
-  return (inj restObj)
+  return . r.inj $ restObj
 
 yqlRestDecompressCallImpl :: Object -> InternalCallType YQLM
 yqlRestDecompressCallImpl restObj f this (List args) = undefined
@@ -753,21 +753,21 @@ yqlRestPostCallImpl _ _ (List args) = do
   case args of
    (ValueString body:_) -> do
      wrappedHttpCall $ YQL.post (fromString body)
-   _ -> newTypeErrorObject Nothing >>= jsThrow
+   _ -> newTypeErrorObject Nothing >>= jsThrow . inj
 
 yqlRestPutCallImpl :: InternalCallType YQLM
 yqlRestPutCallImpl _ _ (List args) = do
   case args of
    (ValueString body:_) -> do
      wrappedHttpCall $ YQL.post (fromString body)
-   _ -> newTypeErrorObject Nothing >>= jsThrow
+   _ -> newTypeErrorObject Nothing >>= jsThrow . inj
 
 yqlRestQueryCallImpl :: Object -> InternalCallType YQLM
 yqlRestQueryCallImpl restObj f this (List args) = do
   case args of
    (ValueString key:ValueString value:_) -> undefined
    _ -> return ()
-  return (inj restObj)
+  return . r.inj $ restObj
 
 yqlRestQueryParamsCallImpl :: InternalCallType YQLM
 yqlRestQueryParamsCallImpl = undefined
@@ -778,7 +778,7 @@ yqlRestTimeoutCallImpl f this (List args) = do
    (ValueNumber n:_) -> lift . lift $ do
      Data.rest . Data.Rest.timeout ?= round n
    _ -> return ()
-  return (inj Undefined)
+  return . r.r.r.inj $ Undefined
 
 wrappedHttpCall :: YQLM Result -> JavaScriptT YQLM CallValue
 wrappedHttpCall call = do
@@ -796,19 +796,19 @@ wrappedHttpCall call = do
 
   defineOwnProperty o "status" def {
     propertyDescriptorValue        =
-       Just (inj (Number . fromIntegral . HTTP.statusCode $ resultStatus)),
+       Just . r.r.r.inj . Number . fromIntegral . HTTP.statusCode $ resultStatus,
     propertyDescriptorWritable     = Just True,
     propertyDescriptorEnumerable   = Just True,
     propertyDescriptorConfigurable = Just True } False
 
   defineOwnProperty o "timeout" def {
-    propertyDescriptorValue        = Just (inj resultTimeout),
+    propertyDescriptorValue        = Just . r.r.r.r.r.inj $ resultTimeout,
     propertyDescriptorWritable     = Just True,
     propertyDescriptorEnumerable   = Just True,
     propertyDescriptorConfigurable = Just True } False
 
   defineOwnProperty o "timeout" def {
-    propertyDescriptorValue        = Just (inj (BS.toString resultUrl)),
+    propertyDescriptorValue        = Just . r.r.r.r.inj . BS.toString $ resultUrl,
     propertyDescriptorWritable     = Just True,
     propertyDescriptorEnumerable   = Just True,
     propertyDescriptorConfigurable = Just True } False
@@ -825,12 +825,12 @@ wrappedHttpCall call = do
    ResponseByteString s -> do
 
      defineOwnProperty o "response" def {
-       propertyDescriptorValue        = Just (inj (LBS.toString s)),
+       propertyDescriptorValue        = Just . r.r.r.r.inj . LBS.toString $ s,
        propertyDescriptorWritable     = Just True,
        propertyDescriptorEnumerable   = Just True,
        propertyDescriptorConfigurable = Just True } False
 
-  return (inj o)
+  return . r.inj $ o
 
 jsonToValue :: (Functor m, Monad m) => Aeson.Value -> JavaScriptT m Value
 jsonToValue (Aeson.Object jo) = do
@@ -850,8 +850,8 @@ jsonToValue (Aeson.Array ja) = do
   a <- newArrayObject vs
   return (inj a)
 
-jsonToValue (Aeson.String s) = return . inj $ (Text.unpack s)
+jsonToValue (Aeson.String s) = return . r.r.r.r.inj . Text.unpack $ s
 jsonToValue (Aeson.Number n) =
-  return . inj . Number . fromRational . toRational $ n
-jsonToValue (Aeson.Bool b) = return (inj b)
-jsonToValue (Aeson.Null) = return (inj Null)
+  return . r.r.r.inj . Number . fromRational . toRational $ n
+jsonToValue (Aeson.Bool b) = return . r.r.r.r.r.inj $ b
+jsonToValue (Aeson.Null) = return . r.inj $ Null

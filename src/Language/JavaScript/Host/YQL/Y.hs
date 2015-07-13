@@ -31,12 +31,12 @@ y ot s restObj = do
         objectInternalProperties        =
            Map.fromList
            [ ("host", PropertyData $ DataDescriptor {
-                 dataDescriptorValue          = inj "",
+                 dataDescriptorValue          = r.r.r.r.inj $ "",
                  dataDescriptorWritable       = True,
                  dataDescriptorEnumerable     = False,
                  dataDescriptorConfigurable   = True })
            , ("table", PropertyData $ DataDescriptor {
-                 dataDescriptorValue          = inj "",
+                 dataDescriptorValue          = r.r.r.r.inj $ "",
                  dataDescriptorWritable       = True,
                  dataDescriptorEnumerable     = False,
                  dataDescriptorConfigurable   = True }) ],
@@ -878,40 +878,40 @@ yqlYCryptoDecodeBase64CallImpl _ _ (List args) = do
   case args of
    (ValueString s:_) -> do
      case Crypto.decodeBase64 (fromString s) of
-      Just d -> return . inj $ LBS.toString d
-      _ -> jsThrow "Invalid Base64 encoding"
-   _ -> newTypeErrorObject Nothing >>= jsThrow
+      Just d -> return . r.r.r.r.r.inj . LBS.toString $ d
+      _ -> jsThrow . r.r.r.r.inj $ "Invalid Base64 encoding"
+   _ -> newTypeErrorObject Nothing >>= jsThrow . inj
 
 yqlYCryptoEncodeBase64CallImpl :: InternalCallType YQLM
 yqlYCryptoEncodeBase64CallImpl  _ _ (List args) = do
   case args of
    (ValueString s:_) -> do
-     return . inj . LBS.toString . Crypto.encodeBase64 . fromString $ s
-   _ -> newTypeErrorObject Nothing >>= jsThrow
+     return . r.r.r.r.r.inj . LBS.toString . Crypto.encodeBase64 . fromString $ s
+   _ -> newTypeErrorObject Nothing >>= jsThrow . inj
 
 yqlYCryptoEncodeHmacSHA1CallImpl :: InternalCallType YQLM
 yqlYCryptoEncodeHmacSHA1CallImpl _ _ (List args) = do
   case args of
    (ValueString secret:ValueString plaintext:_) -> do
      let hex = Crypto.encodeHmacSHA1 (fromString secret) (fromString plaintext)
-     return (inj . LBS.toString $ hex)
-   _ -> newTypeErrorObject Nothing >>= jsThrow
+     return . r.r.r.r.r.inj . LBS.toString $ hex
+   _ -> newTypeErrorObject Nothing >>= jsThrow . inj
 
 yqlYCryptoEncodeHmacSHA256CallImpl :: InternalCallType YQLM
 yqlYCryptoEncodeHmacSHA256CallImpl _ _ (List args) = do
   case args of
    (ValueString secret:ValueString plaintext:_) -> do
      let hex = Crypto.encodeHmacSHA256 (fromString secret) (fromString plaintext)
-     return (inj . LBS.toString $ hex)
-   _ -> newTypeErrorObject Nothing >>= jsThrow
+     return . r.r.r.r.r.inj . LBS.toString $ hex
+   _ -> newTypeErrorObject Nothing >>= jsThrow . inj
 
 yqlYCryptoEncodeMd5CallImpl :: InternalCallType YQLM
 yqlYCryptoEncodeMd5CallImpl _ _ (List args) = do
   case args of
    (ValueString message:_) -> do
-     let hex = Crypto.encodeMd5 (fromString message)
-     return (inj . LBS.toString $ hex)
-   _ -> newTypeErrorObject Nothing >>= jsThrow
+     let hex = Crypto.encodeMd5 . fromString $ message
+     return . r.r.r.r.r.inj . LBS.toString $ hex
+   _ -> newTypeErrorObject Nothing >>= jsThrow . inj
 
 yqlYCryptoEncodeMd5HexCallImpl :: InternalCallType YQLM
 yqlYCryptoEncodeMd5HexCallImpl = undefined
@@ -921,13 +921,13 @@ yqlYCryptoEncodeShaCallImpl _ _ (List args) = do
   case args of
    (ValueString message:_) -> do
      let hex = Crypto.encodeSha (fromString message)
-     return (inj . LBS.toString $ hex)
-   _ -> newTypeErrorObject Nothing >>= jsThrow
+     return . r.r.r.r.r.inj . LBS.toString $ hex
+   _ -> newTypeErrorObject Nothing >>= jsThrow . inj
 
 yqlYCryptoUUIDCallImpl :: InternalCallType YQLM
 yqlYCryptoUUIDCallImpl _ _ _ = do
   uuid <- lift . lift $ Crypto.uuid
-  return (inj . LBS.toString $ uuid)
+  return . r.r.r.r.r.inj . LBS.toString $ uuid
 
 yqlYDateGetOffsetFromEpochInMillisCallImpl :: InternalCallType YQLM
 yqlYDateGetOffsetFromEpochInMillisCallImpl = undefined
@@ -937,37 +937,42 @@ yqlYDecompressCallImpl _ _ (List args) = do
   case args of
    (ValueString s:_) -> do
      case Y.decompress (fromString s) of
-      Just d -> return . inj $ LBS.toString d
-      _ -> jsThrow "Invalid Base64 encoding"
-   _ -> newTypeErrorObject Nothing >>= jsThrow
+      Just d -> return . r.r.r.r.r.inj . LBS.toString $ d
+      _ -> jsThrow . r.r.r.r.inj $ "Invalid Base64 encoding"
+   _ -> newTypeErrorObject Nothing >>= jsThrow . inj
 
+yqlYDeflateCallImpl :: InternalCallType YQLM
 yqlYDeflateCallImpl _ _ (List args) = do
   case args of
    (ValueString s:ValueNumber l:_) -> do
-     return . inj . LBS.toString . flip Y.deflate (round l) . fromString $ s
-   _ -> newTypeErrorObject Nothing >>= jsThrow
+     return . r.r.r.r.r.inj . LBS.toString . flip Y.deflate (round l) . fromString $ s
+   _ -> newTypeErrorObject Nothing >>= jsThrow . inj
 
+yqlYExitCallImpl :: InternalCallType YQLM
 yqlYExitCallImpl = undefined
 
+yqlYIncludeCallImpl :: InternalCallType YQLM
 yqlYIncludeCallImpl = undefined
 
+yqlYInflateCallImpl :: InternalCallType YQLM
 yqlYInflateCallImpl _ _ (List args) = do
   case args of
    (ValueString s:_) -> do
-     case Y.inflate (fromString s) of
-      Just d -> return . inj $ LBS.toString d
-      _ -> jsThrow "Invalid Base64 encoding"
-   _ -> newTypeErrorObject Nothing >>= jsThrow
+     case Y.inflate . fromString $ s of
+      Just d -> return . r.r.r.r.r.inj . LBS.toString $ d
+      _ -> jsThrow . r.r.r.r.inj $ "Invalid Base64 encoding"
+   _ -> newTypeErrorObject Nothing >>= jsThrow . inj
 
+yqlYJsToStringCallImpl :: InternalCallType YQLM
 yqlYJsToStringCallImpl = undefined
 
 yqlYRestCallImpl :: Object -> InternalCallType YQLM
 yqlYRestCallImpl restObj f this (List args) = do
   case args of
    (ValueString url:ValueObject callback:_) -> do
-     lift . lift $ Y.rest url
-     return (inj restObj)
-   _ -> newTypeErrorObject Nothing >>= jsThrow
+     lift . lift . Y.rest $ url
+     return . r.inj $ restObj
+   _ -> newTypeErrorObject Nothing >>= jsThrow . inj
 
 yqlYSyncCallImpl = undefined
 

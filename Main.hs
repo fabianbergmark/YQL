@@ -50,12 +50,12 @@ main = do
                  putStr (key ++ ": ")
                  str <- getLine
                  let value = case inputInfoType of
-                              InputTypeBool -> inj (read str :: Bool)
-                              InputTypeDate -> inj str
-                              InputTypeDouble -> inj (Number (read str :: Double))
-                              InputTypeFloat -> inj (Number (read str :: Double))
-                              InputTypeInt -> inj (Number (read str :: Double))
-                              InputTypeString -> inj str
+                              InputTypeBool -> r.r.r.r.inj $ (read str :: Bool)
+                              InputTypeDate -> r.r.r.inj $ str
+                              InputTypeDouble -> r.r.inj . Number $ (read str :: Double)
+                              InputTypeFloat -> r.r.inj . Number $ (read str :: Double)
+                              InputTypeInt -> r.r.inj . Number $ (read str :: Double)
+                              InputTypeString -> r.r.r.inj $ str
                  return [(key, value)]
                _ -> return mzero)
         result <- runYQL opentable (Map.fromList vs)

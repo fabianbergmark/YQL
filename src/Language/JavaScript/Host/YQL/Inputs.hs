@@ -34,7 +34,7 @@ inputs OpenDataTable {..} Select {..} vs = do
            case Map.lookup key vs of
             Just v -> do
               let prop = (key, PropertyData DataDescriptor {
-                             dataDescriptorValue          = inj v,
+                             dataDescriptorValue          = r.inj $ v,
                              dataDescriptorWritable       = True,
                              dataDescriptorEnumerable     = False,
                              dataDescriptorConfigurable   = True })
@@ -87,7 +87,7 @@ inputs OpenDataTable {..} Select {..} vs = do
     defineGlobalProperty
       key
       (PropertyData DataDescriptor {
-          dataDescriptorValue          = inj value,
+          dataDescriptorValue          = r.inj $ value,
           dataDescriptorWritable       = True,
           dataDescriptorEnumerable     = False,
           dataDescriptorConfigurable   = True })
